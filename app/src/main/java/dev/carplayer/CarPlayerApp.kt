@@ -5,6 +5,7 @@ import android.content.Context
 import dev.carplayer.car.CarSettings
 import dev.carplayer.car.EventLog
 import dev.carplayer.library.LibraryTree
+import dev.carplayer.library.MediaStorePlaylistSource
 import dev.carplayer.library.MediaStoreTrackSource
 import dev.carplayer.playback.PlaybackSnapshotStore
 
@@ -15,6 +16,7 @@ class CarPlayerApp : Application() {
 /** Process-wide singletons; small enough that a DI framework isn't worth it. */
 class AppGraph(context: Context) {
     val trackSource = MediaStoreTrackSource(context.contentResolver)
+    val playlistSource = MediaStorePlaylistSource(context.contentResolver, trackSource)
     val libraryTree = LibraryTree(trackSource)
     val snapshotStore = PlaybackSnapshotStore(context)
     val carSettings = CarSettings(context)

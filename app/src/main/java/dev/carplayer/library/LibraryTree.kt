@@ -46,24 +46,10 @@ class LibraryTree(private val source: TrackSource) {
     }
 
     private suspend fun albumTracks(albumId: Long): List<Track> =
-        source.tracks()
-            .filter { it.albumId == albumId }
-            .sortedWith(compareBy<Track>({ it.discNumber ?: 0 }, { it.trackNumber ?: Int.MAX_VALUE }, { it.title }))
+        source.tracks().filter { it.albumId == albumId }.albums().singleOrNull()?.tracks.orEmpty()
 
     private suspend fun albums(): List<MediaItem> =
-        source.tracks()
-            .groupBy { it.albumId }
-            .map { (albumId, tracks) ->
-                val first = tracks.first()
-                val artists = tracks.mapNotNull { it.artist }.distinct()
-                folder(
-                    MediaIds.album(albumId),
-                    first.album ?: "Unknown album",
-                    MediaMetadata.MEDIA_TYPE_ALBUM,
-                    subtitle = artists.singleOrNull() ?: if (artists.isEmpty()) null else "Various artists",
-                )
-            }
-            .sortedBy { it.mediaMetadata.title.toString().lowercase() }
+        source.tracks().albums().map { folder(it.mediaId, it.title, MediaMetadata.MEDIA_TYPE_ALBUM, subtitle = it.artist) }
 
     private fun songsFolder() = folder(MediaIds.SONGS, "All songs", MediaMetadata.MEDIA_TYPE_FOLDER_MIXED)
 

@@ -17,6 +17,13 @@ control / track info; the head unit shows up as **HandsFreeLink**).
 | `car/BluetoothLinkReceiver` | Diagnostics only: logs raw link up/down for the car, so you can tell "phone never saw the car" apart from "CompanionDeviceManager didn't wake us". |
 
 Music comes from MediaStore (anything in the phone's `Music/` etc. that Android flags as music).
+Playlists are the playlist files (`.m3u` etc.) that MediaStore has indexed.
+
+The app has five tabs: **Now Playing** (the queue; tap a song to jump to it), **Songs**,
+**Albums**, **Artists** and **Playlists**. Tapping a song replaces Now Playing with the list it's in
+(all songs, the album, the artist or the playlist), starting at that song. Holding down on a song,
+album, artist or playlist offers **Add to Now Playing**, which appends it to the queue. Car setup
+is behind the car icon at the top right.
 The browse tree (All songs / Albums) is exposed to Bluetooth browsing clients too, although a 2013
 head unit probably doesn't browse.
 
@@ -65,12 +72,12 @@ adb push fixtures/*.mp3 /sdcard/Music/CarPlayerFixtures/
 
 ## Checks before the first car trip (at home, laptop is fine)
 
-1. Install, open, **Allow access**. The songs should list.
-2. Tap **Simulate car connection**. Music should start, and the event log should show
+1. Install, open, **Allow access**. The songs should list in the **Songs** tab.
+2. Tap the car icon (top right), then **Simulate car connection**. Music should start, and the event log should show
    `Simulated car connection` → `Playback started: …`.
 3. Kill the app (swipe it away), then press play on any Bluetooth headset or run
    `adb shell cmd media_session dispatch play`. Music should resume where it left off.
-4. **Choose car**: pick the Accord (`HandsFreeLink`) from the paired list, then confirm the
+4. Car icon → **Choose car**: pick the Accord (`HandsFreeLink`) from the paired list, then confirm the
    system dialog. The phone must have been **paired with the car before**. The car doesn't need to
    be nearby for this step: the system matches the already-paired device and doesn't scan.
    If it isn't paired yet, do step 4 in the car after pairing.
@@ -104,10 +111,10 @@ start things (resumption from a killed app still works).
 ```
 app/src/main/java/dev/carplayer/
   CarPlayerApp.kt           process-wide singletons (AppGraph)
-  library/                  Track model, MediaStore source, browse tree
+  library/                  Track model, MediaStore songs/playlists, album/artist grouping, browse tree
   playback/                 PlaybackService, queue persistence
   car/                      CDM association, presence service, auto-play, A2DP wait, event log
-  ui/                       Compose UI (single screen + event log)
+  ui/                       Compose UI (library tabs, car setup, event log)
 scripts/make-fixtures.sh    fixture generator
 fixtures/                   generated test tracks
 ```
